@@ -85,16 +85,16 @@ async def upload_pdf(file: UploadFile = File(...)):
     file_path = (
         f"{UPLOAD_DIR}/{session_id}.pdf"
     )
-    MAX_FILE_SIZE = 10 * 1024 * 1024
-
-    if len(await file.read()) > MAX_FILE_SIZE:
+    MAX_FILE_SIZE = 100* 1024 * 1024
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
             detail="File size exceeds the limit of 100 MB"
         )
 
     with open(file_path, "wb") as f:
-        content = await file.read()
+      
         f.write(content)
 
     docs = process_single_pdf(file_path)
