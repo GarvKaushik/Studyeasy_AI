@@ -121,7 +121,7 @@ class AdvancedRAGPipeline:
 
         return {
             'question': question,
-            'answer': answer_with_citations,
+            'answer': answer,
             'sources': sources,
             'summary': summary,
             'history': self.history,
