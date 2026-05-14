@@ -260,12 +260,7 @@ Deployed on Streamlit Community Cloud.
 * Multi-file support
 * Streaming responses
 
----
 
 
 
-# 👨‍💻 Author
 
-Garv Kaushik
-
-Engineering Student | ML & Web Development Enthusiast
