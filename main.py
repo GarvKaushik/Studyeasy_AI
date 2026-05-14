@@ -73,7 +73,7 @@ class QueryRequest(BaseModel):
     top_k: int = 10
     session_id: str
 
-    min_score: float = 0.2
+    min_score: float = 0.05
     summarize: bool = False
 
 @app.post("/upload")

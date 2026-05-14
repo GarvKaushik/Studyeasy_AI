@@ -49,7 +49,7 @@ class AdvancedRAGPipeline:
             question: str,
             session_id: str,
             top_k: int = 10,
-            min_score: float = 0.2,
+            min_score: float = 0.0,
             summarize: bool = False) -> Dict[str, Any]:
         vector_store = VectorStore(
             collection_name=session_id
