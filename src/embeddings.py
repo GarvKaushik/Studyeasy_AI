@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
+
 from typing import List
 from openai import OpenAI
 from dotenv import load_dotenv
