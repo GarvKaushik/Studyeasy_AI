@@ -2,12 +2,12 @@ langchain
 langchain-core
 langchain-community
 pymupdf
-
+requests
 chromadb
 langchain-groq
 python-dotenv
 fastapi
 uvicorn
-
+streamlit
 python-multipart
 openai
