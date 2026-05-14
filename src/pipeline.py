@@ -1,0 +1,124 @@
+
+from langchain_groq import ChatGroq
+import os
+from dotenv import load_dotenv  
+load_dotenv()  
+from typing import Dict, Any
+
+from src.search import RAGRetriever
+from src.embeddings import EmbeddingManager
+from src.vectorstore import VectorStore
+from src.prompts import RAG_PROMPT, SUMMARY_PROMPT
+
+#Initilize components
+embedding_manager = EmbeddingManager()
+
+
+### initialize groq llm
+
+groq_api_key=os.getenv("GROQ_API_KEY")
+if not groq_api_key:
+    raise ValueError(
+        "GROQ_API_KEY not found in environment variables."
+    )
+
+
+llm=ChatGroq(
+    groq_api_key=groq_api_key,
+    model_name="llama-3.3-70b-versatile",temperature=0.1,
+    max_tokens=1024)
+# --- Advanced RAG Pipeline: Streaming, Citations, History, Summarization ---
+
+class AdvancedRAGPipeline:
+    def __init__(
+            self,
+            embedding_manager,
+            llm):
+        self.embedding_manager = embedding_manager
+        self.llm = llm
+        self.history = []  # Store query history
+
+    def query(
+            self,
+            question: str,
+            session_id: str,
+            top_k: int = 5,
+            min_score: float = 0.2,
+            summarize: bool = False) -> Dict[str, Any]:
+        vector_store = VectorStore(
+            collection_name=session_id
+        )
+
+        retriever = RAGRetriever(
+            vector_store,
+            self.embedding_manager
+        )
+        # Retrieve relevant documents
+        results = retriever.retrieve(
+            question,
+            top_k=top_k,
+            score_threshold=min_score)
+        if not results:
+            answer = "No relevant context found."
+            sources = []
+            context = ""
+        else:
+            context = "\n\n".join([doc['content'] for doc in results])
+            MAX_CONTEXT_CHARS = 12000
+            context = context[:MAX_CONTEXT_CHARS]
+
+            sources = [
+                {
+                'source': doc['metadata'].get(
+                    'source_file',
+                    doc['metadata'].get('source', 'unknown')),
+                'page': doc['metadata'].get(
+                    'page',
+                    'unknown'),
+                'score': doc['similarity_score'],
+                'preview': doc['content'][:120] + '...'
+            } for doc in results]
+            # Streaming answer simulation
+            prompt = RAG_PROMPT.format(
+            context=context,
+            question=question
+        )
+            response = self.llm.invoke(prompt)
+            answer = response.content
+
+        # Add citations to answer
+        citations = [f"[{i+1}] {src['source']} (page {src['page']})" for i, src in enumerate(sources)]
+
+
+        answer_with_citations = answer + "\n\nCitations:\n" + "\n".join(citations) if citations else answer
+
+        # Optionally summarize answer
+        summary = None
+        if summarize and answer:
+           summary_prompt = SUMMARY_PROMPT.format(
+        answer=answer
+                    )
+
+           summary_resp = self.llm.invoke(
+            summary_prompt
+            )
+           summary = summary_resp.content
+
+        # Store query history
+        self.history.append({
+            'question': question,
+            'answer': answer,
+            'sources': sources,
+            'summary': summary
+        })
+
+        return {
+            'question': question,
+            'answer': answer_with_citations,
+            'sources': sources,
+            'summary': summary,
+            'history': self.history
+        }
+
+# Example usage:
+rag_pipeline = AdvancedRAGPipeline(embedding_manager, llm)
