@@ -1,4 +1,4 @@
-# 📚 AI Study Assistant
+# 📚 Studyeasy AI
 
 An AI-powered study assistant that allows students to upload PDFs/notes and ask questions directly from their study material using Retrieval-Augmented Generation (RAG).
 
@@ -57,7 +57,7 @@ Streamlit Frontend
         ↓
 FastAPI Backend
         ↓
-Embedding API
+Embedding API(Jina)
         ↓
 ChromaDB Vector Store
         ↓
@@ -82,7 +82,7 @@ Groq LLM
 * Groq LLM
 * ChromaDB
 * LangChain
-* Embedding API
+* Embedding API (Jina)
 
 ## PDF Processing
 
@@ -250,10 +250,9 @@ Deployed on Streamlit Community Cloud.
 
 ---
 
-# 🔮 Future Improvements
+# 🔮 Potential Improvements
 
-* Flashcards generation
-* Exam mode
+
 * Viva questions generation
 * Formula extraction
 * Better retrieval ranking
@@ -263,17 +262,7 @@ Deployed on Streamlit Community Cloud.
 
 ---
 
-# 📸 Demo
 
-Add screenshots or demo GIFs here.
-
----
-
-# 📜 License
-
-This project is licensed under the MIT License.
-
----
 
 # 👨‍💻 Author
 
