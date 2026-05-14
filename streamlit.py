@@ -1,10 +1,9 @@
-import os
+
 
 import streamlit as st
 import requests
-from dotenv import load_dotenv
-load_dotenv()
-BACKEND_URL = os.getenv("BACKEND_URL")
+
+BACKEND_URL = st.secrets["BACKEND_URL"]
 
 UPLOAD_ENDPOINT = f"{BACKEND_URL}/upload"
 CHAT_ENDPOINT = f"{BACKEND_URL}/chat"
