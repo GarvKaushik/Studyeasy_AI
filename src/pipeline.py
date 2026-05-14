@@ -40,7 +40,7 @@ class AdvancedRAGPipeline:
             self,
             get_embedding_manager,
             llm):
-        self.embedding_manager = get_embedding_manager()
+        self.embedding_manager = None
         self.llm = llm
         self.history = []  # Store query history
 
@@ -54,10 +54,11 @@ class AdvancedRAGPipeline:
         vector_store = VectorStore(
             collection_name=session_id
         )
-
+        if self.embedding_manager is None:
+           self.embedding_manager = get_embedding_manager()
         retriever = RAGRetriever(
             vector_store,
-            self.get_embedding_manager()
+            self.embedding_manager
         )
         # Retrieve relevant documents
         results = retriever.retrieve(
