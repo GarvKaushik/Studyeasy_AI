@@ -3,7 +3,7 @@ import uuid
 from fastapi import FastAPI, HTTPException,UploadFile, File
 from pydantic import BaseModel
 
-from src.pipeline import rag_pipeline,embedding_manager
+from src.pipeline import rag_pipeline,get_embedding_manager
 from src.data_loader import (
     process_single_pdf,
     split_documents
@@ -60,7 +60,7 @@ async def upload_pdf(file: UploadFile = File(...)):
     chunks = split_documents(docs)
 
     embeddings = (
-        embedding_manager.generate_embeddings(
+        get_embedding_manager().generate_embeddings(
             [doc.page_content for doc in chunks]
         )
     )

@@ -11,9 +11,15 @@ from src.vectorstore import VectorStore
 from src.prompts import RAG_PROMPT, SUMMARY_PROMPT
 
 #Initilize components
-embedding_manager = EmbeddingManager()
+embedding_manager = None
 
+def get_embedding_manager():
+    global embedding_manager
 
+    if embedding_manager is None:
+        embedding_manager = EmbeddingManager()
+
+    return embedding_manager
 ### initialize groq llm
 
 groq_api_key=os.getenv("GROQ_API_KEY")
@@ -32,9 +38,9 @@ llm=ChatGroq(
 class AdvancedRAGPipeline:
     def __init__(
             self,
-            embedding_manager,
+            get_embedding_manager,
             llm):
-        self.embedding_manager = embedding_manager
+        self.embedding_manager = get_embedding_manager()
         self.llm = llm
         self.history = []  # Store query history
 
@@ -51,7 +57,7 @@ class AdvancedRAGPipeline:
 
         retriever = RAGRetriever(
             vector_store,
-            self.embedding_manager
+            self.get_embedding_manager()
         )
         # Retrieve relevant documents
         results = retriever.retrieve(
@@ -121,4 +127,4 @@ class AdvancedRAGPipeline:
         }
 
 # Example usage:
-rag_pipeline = AdvancedRAGPipeline(embedding_manager, llm)
+rag_pipeline = AdvancedRAGPipeline(get_embedding_manager, llm)
