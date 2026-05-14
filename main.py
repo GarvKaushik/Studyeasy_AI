@@ -72,7 +72,7 @@ class QueryRequest(BaseModel):
 async def upload_pdf(file: UploadFile = File(...)):
 
    
-    if not file.filename.endswith(".pdf"):
+    if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(
             status_code=400,
             detail="Only PDF files allowed"
@@ -85,6 +85,13 @@ async def upload_pdf(file: UploadFile = File(...)):
     file_path = (
         f"{UPLOAD_DIR}/{session_id}.pdf"
     )
+    MAX_FILE_SIZE = 10 * 1024 * 1024
+
+    if len(await file.read()) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="File size exceeds the limit of 100 MB"
+        )
 
     with open(file_path, "wb") as f:
         content = await file.read()
