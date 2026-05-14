@@ -2,7 +2,8 @@ import os
 import uuid
 from fastapi import FastAPI, HTTPException,UploadFile, File
 from pydantic import BaseModel
-
+import threading
+import time
 from src.pipeline import rag_pipeline,get_embedding_manager
 from src.data_loader import (
     process_single_pdf,
@@ -12,7 +13,10 @@ from src.vectorstore import VectorStore
 
 from src.session_manager import (
     create_session,
-    update_session_access
+    update_session_access,
+    is_session_expired,
+    delete_session,
+    sessions
 )
 app = FastAPI(
     title="RAG PDF Chat API",
@@ -21,9 +25,40 @@ app = FastAPI(
 )
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-class QueryRequest(BaseModel):
-    question: str
-    session_id: str
+
+def cleanup_expired_sessions():
+
+    while True:
+
+        expired_sessions = []
+
+        for session_id in list(sessions.keys()):
+
+            if is_session_expired(
+                session_id
+            ):
+
+                expired_sessions.append(
+                    session_id
+                )
+
+        for session_id in expired_sessions:
+
+            vector_store = VectorStore(
+                collection_name=session_id
+            )
+
+            vector_store.delete_collection()
+
+            delete_session(session_id)
+
+            print(
+                f"Deleted expired session: "
+                f"{session_id}"
+            )
+
+        time.sleep(300)
+
 
 class QueryRequest(BaseModel):
     question: str
@@ -73,6 +108,7 @@ async def upload_pdf(file: UploadFile = File(...)):
         chunks,
         embeddings
     )
+    os.remove(file_path)
 
     create_session(session_id)
 
@@ -117,3 +153,10 @@ def chat(request: QueryRequest):
             status_code=500,
             detail=str(e)
         )
+    
+cleanup_thread = threading.Thread(
+    target=cleanup_expired_sessions,
+    daemon=True
+)
+
+cleanup_thread.start()
