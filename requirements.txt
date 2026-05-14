@@ -10,4 +10,4 @@ fastapi
 uvicorn
 torch
 python-multipart
-opanai
+openai
