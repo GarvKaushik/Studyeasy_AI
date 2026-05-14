@@ -8,7 +8,7 @@ from typing import Dict, Any
 from src.search import RAGRetriever
 from src.embeddings import EmbeddingManager
 from src.vectorstore import VectorStore
-from src.prompts import RAG_PROMPT, SUMMARY_PROMPT
+from src.prompts import RAG_PROMPT
 
 #Initilize components
 embedding_manager = None
@@ -48,7 +48,7 @@ class AdvancedRAGPipeline:
             self,
             question: str,
             session_id: str,
-            top_k: int = 5,
+            top_k: int = 10,
             min_score: float = 0.2,
             summarize: bool = False) -> Dict[str, Any]:
         vector_store = VectorStore(
@@ -99,31 +99,20 @@ class AdvancedRAGPipeline:
 
        
 
-        # Optionally summarize answer
-        summary = None
-        if summarize and answer:
-           summary_prompt = SUMMARY_PROMPT.format(
-        answer=answer
-                    )
-
-           summary_resp = self.llm.invoke(
-            summary_prompt
-            )
-           summary = summary_resp.content
-
+       
         # Store query history
         self.history.append({
             'question': question,
             'answer': answer,
             'sources': sources,
-            'summary': summary
+           
         })
 
         return {
             'question': question,
             'answer': answer,
             'sources': sources,
-            'summary': summary,
+        
             'history': self.history,
             'citations': citations
         }

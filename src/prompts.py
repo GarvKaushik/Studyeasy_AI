@@ -22,11 +22,3 @@ Answer:
 """
 
 
-SUMMARY_PROMPT = """
-Summarize the following answer in 2 concise sentences.
-
-Answer:
-{answer}
-
-Summary:
-"""

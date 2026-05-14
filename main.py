@@ -62,7 +62,7 @@ def cleanup_expired_sessions():
 
 class QueryRequest(BaseModel):
     question: str
-    top_k: int = 5
+    top_k: int = 10
     session_id: str
 
     min_score: float = 0.2
